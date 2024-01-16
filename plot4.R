@@ -1,6 +1,3 @@
-# Load necessary libraries
-library(ggplot2)
-
 # Load the PM2.5 emissions data from the RDS file
 NEI <- readRDS("summarySCC_PM25.rds")
 
@@ -16,12 +13,13 @@ coal_emissions <- merge(NEI, coal_combustion_scc, by = "SCC")
 # Aggregate the total emissions for each year
 total_coal_emissions <- aggregate(Emissions ~ year, coal_emissions, sum)
 
-# Create a plot using ggplot2 with a white background
-ggplot(total_coal_emissions, aes(x = year, y = Emissions)) +
-  geom_line(color = "blue", linewidth = 1) + # Blue line with increased size
-  geom_point(color = "red", size = 3) + # Red points with increased size
-  labs(x = "Year", y = "Total Emissions from Coal Combustion",
-       title = "Emissions from Coal Combustion-Related Sources (1999-2008)")
+# Open a PNG device to save the plot
+png("plot4.png")
 
-# Save the plot to a file
-ggsave("plot4.png", width = 10, height = 6)
+# Create a plot using base R plotting system
+plot(total_coal_emissions$year, total_coal_emissions$Emissions, type="b",
+     xlab="Year", ylab="Total Emissions from Coal Combustion",
+     main="Emissions from Coal Combustion-Related Sources (1999-2008)")
+
+# Close the device to save the plot to the file
+dev.off()

@@ -1,3 +1,7 @@
+# Load necessary libraries
+library(ggplot2)
+library(RColorBrewer)
+
 # Reading the PM2.5 emissions data from the RDS file
 NEI <- readRDS("summarySCC_PM25.rds")
 
@@ -7,26 +11,14 @@ baltimore_data <- subset(NEI, fips == "24510")
 # Aggregating emissions by year and type
 emissions_by_type <- aggregate(Emissions ~ year + type, baltimore_data, sum)
 
-# Opening a PNG device to save the plot
-png("plot3.png")
+# Create a plot using ggplot2
+ggplot(emissions_by_type, aes(x = year, y = Emissions, color = type, group = type)) +
+  geom_line() +
+  geom_point() +
+  scale_color_brewer(palette = "Set1") +
+  labs(x = "Year", y = "Total Emissions",
+       title = "Emissions by Source Type in Baltimore City (1999-2008)") +
+  theme(legend.title = element_blank())
 
-# Creating a plot using base R plotting system
-plot(emissions_by_type$year, emissions_by_type$Emissions, 
-     type="n", xlab="Year", ylab="Total Emissions",
-     main="Emissions by Source Type in Baltimore City (1999-2008)")
-
-# Differentiating each type with colors
-colors <- rainbow(length(unique(emissions_by_type$type)))
-types <- unique(emissions_by_type$type)
-
-for (i in 1:length(types)) {
-  type_data <- subset(emissions_by_type, type == types[i])
-  points(type_data$year, type_data$Emissions, 
-         type="b", col=colors[i], pch=19)
-}
-
-# Adding a legend
-legend("topright", legend=types, col=colors, pch=19, cex=0.8)
-
-# Closing the device to save the plot to the file
-dev.off()
+# Save the plot to a file
+ggsave("plot3.png", width = 10, height = 6)
